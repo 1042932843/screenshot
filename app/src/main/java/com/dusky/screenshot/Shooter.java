@@ -23,11 +23,11 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 
 public class Shooter {
@@ -48,22 +48,21 @@ public class Shooter {
     public Shooter(Context context, int reqCode, Intent data) {
         this.mRefContext = new SoftReference<>(context);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMediaProjection = getMediaProjectionManager().getMediaProjection(reqCode, data);
+        mMediaProjection = getMediaProjectionManager().getMediaProjection(reqCode, data);
 
-            WindowManager window = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            Display mDisplay = window.getDefaultDisplay();
-            DisplayMetrics metrics = new DisplayMetrics();
-            mDisplay.getRealMetrics(metrics);
-            mWidth = metrics.widthPixels;//size.x;
-            mHeight = metrics.heightPixels;//size.y;
+        WindowManager window = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        assert window != null;
+        Display mDisplay = window.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        mDisplay.getRealMetrics(metrics);
+        mWidth = metrics.widthPixels;//size.x;
+        mHeight = metrics.heightPixels;//size.y;
 
-            mImageReader = ImageReader.newInstance(
-                    mWidth,
-                    mHeight,
-                    PixelFormat.RGBA_8888,//此处必须和下面 buffer处理一致的格式 ，RGB_565在一些机器上出现兼容问题。
-                    1);
-        }
+        mImageReader = ImageReader.newInstance(
+                mWidth,
+                mHeight,
+                PixelFormat.RGBA_8888,//此处必须和下面 buffer处理一致的格式 ，RGB_565在一些机器上出现兼容问题。
+                1);
     }
 
 
@@ -90,13 +89,9 @@ public class Shooter {
 
         mOnShotListener = onShotListener;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            virtualDisplay();
-            Image image = mImageReader.acquireLatestImage();
-            new SaveTask().doInBackground(image);
-
-        }
+        virtualDisplay();
+        Image image = mImageReader.acquireLatestImage();
+        new SaveTask().doInBackground(image);
 
     }
 
@@ -112,7 +107,6 @@ public class Shooter {
             }
 
             Image image = params[0];
-
             int width = image.getWidth();
             int height = image.getHeight();
             final Image.Plane[] planes = image.getPlanes();
@@ -132,7 +126,7 @@ public class Shooter {
                 try {
 
                     if (TextUtils.isEmpty(mLocalUrl)) {
-                        mLocalUrl = getContext().getExternalFilesDir("screenshot").getAbsoluteFile()
+                        mLocalUrl = Objects.requireNonNull(getContext().getExternalFilesDir("screenshot")).getAbsoluteFile()
                                 +
                                 "/"
                                 +
@@ -144,21 +138,16 @@ public class Shooter {
                         fileImage.createNewFile();
                     }
                     FileOutputStream out = new FileOutputStream(fileImage);
-                    if (out != null) {
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-                        out.flush();
-                        out.close();
-                    }
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+                    out.flush();
+                    out.close();
 
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    fileImage = null;
                 } catch (IOException e) {
                     e.printStackTrace();
                     fileImage = null;
                 }
             }
-            
+
             if (bitmap != null && !bitmap.isRecycled()) {
                 bitmap.recycle();
             }
@@ -167,9 +156,7 @@ public class Shooter {
                 mVirtualDisplay.release();
             }
             if (mMediaProjection != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    mMediaProjection.stop();
-                }
+                mMediaProjection.stop();
             }
 
             if (mOnShotListener != null) {
@@ -178,7 +165,7 @@ public class Shooter {
             } else {
                 Log.d("Shooter:", "noShotListener");
             }
-            
+
             if (fileImage != null) {
                 return bitmap;
             }

@@ -6,15 +6,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Window
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class TransparentActivity : AppCompatActivity() {
-    val REQUEST_MEDIA_PROJECTION = 1042
+    private val REQUEST_MEDIA_PROJECTION = 1042
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,14 +24,10 @@ class TransparentActivity : AppCompatActivity() {
     }
 
     fun requestScreenShot() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            startActivityForResult(
-                createScreenCaptureIntent(),
-                REQUEST_MEDIA_PROJECTION
-            )
-        } else {
-            Toast.makeText(this@TransparentActivity, "仅支持5.1以上版本使用", Toast.LENGTH_LONG).show()
-        }
+        startActivityForResult(
+            createScreenCaptureIntent(),
+            REQUEST_MEDIA_PROJECTION
+        )
     }
 
 
@@ -58,7 +52,7 @@ class TransparentActivity : AppCompatActivity() {
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult","shot cancel , Don't you forget the permission?")
                 } else {
-                    Log.d("onActivityResult","unknow exceptions!")
+                    Log.d("onActivityResult","error")
 
                 }
             }
