@@ -1,0 +1,4 @@
+*.java linguist-language=kotlin
+*.xml linguist-language=kotlin
+*.css linguist-language=kotlin
+*.html linguist-language=kotlin
