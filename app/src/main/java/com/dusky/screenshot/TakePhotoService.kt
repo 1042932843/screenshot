@@ -2,11 +2,21 @@ package com.dusky.screenshot
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
+import org.greenrobot.eventbus.EventBus
 
 
 class TakePhotoService : AccessibilityService() {
+    override fun onCreate() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+        super.onCreate()
+    }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
 
     override fun onInterrupt() {
 

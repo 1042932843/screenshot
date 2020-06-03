@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_above="@+id/tip">
+        android:layout_above="@+id/state">
 
     <TextView
         android:layout_width="match_parent"
@@ -25,17 +25,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     </LinearLayout>
+
     <TextView
-        android:id="@+id/tip"
-        android:layout_above="@+id/start"
-        android:layout_width="match_parent"
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="共10092个文件，预计处理时长120小时"/>
+        android:text="共10092个文件，预计处理时长120小时\n辅助功能服务开启状态：OFF(未开启无法开始)\n对象包名：com.tencent.mm"
+        android:layout_above="@+id/start"/>
     <Button
         android:id="@+id/start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始"
+        android:enabled="false"
         android:layout_alignParentBottom="true"
         />
 </RelativeLayout>
