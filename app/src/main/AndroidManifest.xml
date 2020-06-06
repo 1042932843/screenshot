@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dusky.screenshot">
-
+    
+    <uses-permission android:name="com.baidu.homework.permission.PIC_SEARCH"/>
+    
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,16 +19,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TransparentActivity" />
+        <activity android:name=".TransparentActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Dialog">
+
+        </activity>
 
         <service
             android:name=".TakePhotoService"
-            android:enabled="true"
-            android:exported="true"
+            android:label="测试"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService"/>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility"/>
