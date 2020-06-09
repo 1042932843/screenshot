@@ -1,21 +1,34 @@
 package com.dusky.screenshot
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.SystemClock
 import android.util.Log
 import android.view.Window
+import android.widget.Toast
+import com.dusky.screenshot.helper.HomeWorkHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+import java.io.File
+import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class TransparentActivity : Activity() {
-    private val REQUEST_MEDIA_PROJECTION = 1042
-    var currentPicPath=""
+    private val REQUEST_MEDIA_PROJECTION = 0x2893
+    var mLocalUrl=""
+    var dataList=ArrayList<String>()
+    var current=0
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +39,18 @@ class TransparentActivity : Activity() {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this)
         }
-        goHomeWorkAPP(currentPicPath)
+
+        val parentFile = File(getParentFile(), "Pics")
+
+        if(parentFile.exists()){
+            val children = parentFile.list()
+          children.forEach {
+              var path=parentFile.path+"/"+it
+              dataList.add(path)
+          }
+        }
+        postMsg()
+
     }
 
     override fun onDestroy() {
@@ -34,30 +58,17 @@ class TransparentActivity : Activity() {
         EventBus.getDefault().unregister(this)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(event: ShooterEvent) {
         when(event.event_todo){
-            ShooterEvent.EventCommitPic->{
-                goHomeWorkAPP(currentPicPath)
-            }
             ShooterEvent.EventTakePhoto->{
+                Log.d("TransparentActivity", "EventBus->state:requestScreenShot")
+                //screenShotByShell()
                 requestScreenShot()
             }
         }
     }
 
-    /**
-     * 跳转作业帮
-     */
-    fun goHomeWorkAPP(path:String){
-        val intent=Intent(Intent.ACTION_VIEW)
-        intent.component=ComponentName("com.baidu.homework","com.baidu.homework.activity.homework.AutoAnswerActivity")
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra("INPUT_IMG_FILE",path)
-        intent.putExtra("INPUT_SEARCH_CHANNEL","zzb_yz_dsl_dsl")
-        intent.putExtra("INPUT_USE_OCR",true)
-        startActivity(intent)
-    }
 
 
     fun requestScreenShot() {
@@ -81,10 +92,13 @@ class TransparentActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
            REQUEST_MEDIA_PROJECTION -> {
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    val shooter = Shooter(this, REQUEST_MEDIA_PROJECTION, data)
+                if (resultCode == RESULT_OK && data != null) {
+                    val shooter = Shooter(this, resultCode, data)
+                    Log.d("onActivityResult","new Shooter")
                     shooter.startScreenShot {
+                        current += 1
                         Log.d("onActivityResult","shot finish")
+                        postMsg()
 
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -96,4 +110,44 @@ class TransparentActivity : Activity() {
             }
         }
     }
+
+
+    fun postMsg(){//通知服务开始检测
+        if(current<dataList.size){
+            val file=File(dataList[current])
+            if(file.exists()){
+                HomeWorkHelper.openAPP(this,file.path)
+                val handler = Handler()
+                handler.postDelayed(
+                    {
+                        val event=ShooterEvent()
+                        event.event_todo=ShooterEvent.EventServiceStartFind
+                        EventBus.getDefault().post(event)
+                    },
+                    8000
+                )
+            }
+        }
+    }
+
+    private fun getParentFile(): File? {
+        val externalSaveDir = this.externalCacheDir
+        return externalSaveDir ?: this.cacheDir
+    }
+
+    fun screenShotByShell() {
+       val mLocalUrl =
+           (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile
+                .toString() +
+                    "/"
+                    +
+                    SystemClock.currentThreadTimeMillis() + ".png")
+        val shotCmd = "screencap -p $mLocalUrl \n"
+        try {
+            Runtime.getRuntime().exec(shotCmd)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
 }

@@ -15,6 +15,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -90,8 +91,15 @@ public class Shooter {
         mOnShotListener = onShotListener;
 
         virtualDisplay();
-        Image image = mImageReader.acquireLatestImage();
-        new SaveTask().doInBackground(image);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Image image = mImageReader.acquireLatestImage();
+                                    new SaveTask().doInBackground(image);
+                                }
+                            },
+                1000);
 
     }
 

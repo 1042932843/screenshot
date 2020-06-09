@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.dusky.screenshot">
     
     <uses-permission android:name="com.baidu.homework.permission.PIC_SEARCH"/>
@@ -26,9 +27,11 @@
         </activity>
 
         <service
-            android:name=".TakePhotoService"
-            android:label="测试"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            android:name=".service.TakePhotoService"
+            android:label="后台拍照服务"
+            android:directBootAware="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            tools:targetApi="n">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>

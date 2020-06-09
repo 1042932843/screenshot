@@ -1,4 +1,4 @@
-package com.dusky.screenshot;
+package com.dusky.screenshot.helper;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
@@ -32,12 +32,12 @@ public class AccessibilityHelper {
     /**
      * 判断辅助服务是否正在运行
      */
-    public static boolean isServiceRunning(AccessibilityService service) {
-        if (service == null) {
+    public static boolean isServiceRunning() {
+        if (mService == null) {
             return false;
         }
-        AccessibilityManager accessibilityManager = (AccessibilityManager) service.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        AccessibilityServiceInfo info = service.getServiceInfo();
+        AccessibilityManager accessibilityManager = (AccessibilityManager) mService.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        AccessibilityServiceInfo info = mService.getServiceInfo();
         if (info == null) {
             return false;
         }
