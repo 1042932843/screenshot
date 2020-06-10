@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             val children = parentFile.list()
             size=children.size
         }
-        state.text= "共"+size+"个文件，预计处理时长"+size*10/60+"分\n辅助功能服务开启状态：$st(未开启无法开始)\n对象包名：com.baidu.homework\n版本："+ HomeWorkHelper.getAppVersionName(this)
+        state.text= "共"+size+"个文件，预计处理时长"+size*8/60+"分\n辅助功能服务开启状态：$st(未开启无法开始)\n对象包名：com.baidu.homework\n版本："+ HomeWorkHelper.getAppVersionName(this)
     }
 
     private fun getParentFile(): File? {
