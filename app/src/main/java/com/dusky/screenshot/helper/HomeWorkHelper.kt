@@ -10,6 +10,7 @@ object HomeWorkHelper {
     var PKG = "com.dusky.screenshot"
     var PicActivity="com.baidu.homework.activity.search.PicSearchActivity"
     var webView="android.webkit.WebView"
+    var View="android.view.View"
 
     /**
      * 打开作业帮搜题

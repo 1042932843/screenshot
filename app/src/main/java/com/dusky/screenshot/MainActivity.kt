@@ -11,7 +11,6 @@ import java.io.File
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,6 +28,7 @@ class MainActivity : AppCompatActivity() {
             start.isEnabled=true
             st="ON"
         }else{
+            start.isEnabled=false
             AccessibilityHelper.openAccessibilityServiceSettings(this)
         }
         val parentFile = File(getParentFile(), "Pics")

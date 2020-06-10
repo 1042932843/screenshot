@@ -11,20 +11,20 @@ import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.Window
-import android.widget.Toast
 import com.dusky.screenshot.helper.HomeWorkHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.io.IOException
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 class TransparentActivity : Activity() {
     private val REQUEST_MEDIA_PROJECTION = 0x2893
-    var mLocalUrl=""
     var dataList=ArrayList<String>()
     var current=0
 
@@ -95,12 +95,19 @@ class TransparentActivity : Activity() {
                 if (resultCode == RESULT_OK && data != null) {
                     val shooter = Shooter(this, resultCode, data)
                     Log.d("onActivityResult","new Shooter")
-                    shooter.startScreenShot {
+                    val filePath=(Objects.requireNonNull<File>(
+                        this.getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+
+                            current+"/"+ SystemClock.currentThreadTimeMillis()+ ".png")
+                    val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()+"/"+ current
+                    val file = File(dir)
+                    if(!file.exists()){
+                        file.mkdir()
+                    }
+                    shooter.startScreenShot({
                         current += 1
                         Log.d("onActivityResult","shot finish")
                         postMsg()
-
-                    }
+                    },filePath)
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult","shot cancel , Don't you forget the permission?")
                 } else {
@@ -124,7 +131,7 @@ class TransparentActivity : Activity() {
                         event.event_todo=ShooterEvent.EventServiceStartFind
                         EventBus.getDefault().post(event)
                     },
-                    8000
+                    5000
                 )
             }
         }
@@ -149,5 +156,33 @@ class TransparentActivity : Activity() {
             e.printStackTrace()
         }
     }
+
+    fun encode(text: String): String {
+        try {
+            //获取md5加密对象
+            val instance: MessageDigest = MessageDigest.getInstance("MD5")
+            //对字符串加密，返回字节数组
+            val digest:ByteArray = instance.digest(text.toByteArray())
+            var sb : StringBuffer = StringBuffer()
+            for (b in digest) {
+                //获取低八位有效值
+                var i :Int = b.toInt() and 0xff
+                //将整数转化为16进制
+                var hexString = Integer.toHexString(i)
+                if (hexString.length < 2) {
+                    //如果是一位的话，补0
+                    hexString = "0" + hexString
+                }
+                sb.append(hexString)
+            }
+            return sb.toString()
+
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+        }
+
+        return ""
+    }
+
 
 }

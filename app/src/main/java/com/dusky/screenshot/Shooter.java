@@ -146,7 +146,7 @@ public class Shooter {
                         fileImage.createNewFile();
                     }
                     FileOutputStream out = new FileOutputStream(fileImage);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                     out.flush();
                     out.close();
 
