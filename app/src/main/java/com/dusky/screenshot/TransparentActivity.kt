@@ -48,6 +48,8 @@ class TransparentActivity : Activity() {
               var path=parentFile.path+"/"+it
               dataList.add(path)
           }
+        }else{
+            parentFile.mkdir()
         }
         postMsg()
 
@@ -65,6 +67,10 @@ class TransparentActivity : Activity() {
                 Log.d("TransparentActivity", "EventBus->state:requestScreenShot")
                 //screenShotByShell()
                 requestScreenShot()
+            }
+            ShooterEvent.EventPhotoNext->{
+                current += 1
+                postMsg()
             }
         }
     }

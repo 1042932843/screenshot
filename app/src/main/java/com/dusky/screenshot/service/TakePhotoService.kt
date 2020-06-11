@@ -79,6 +79,7 @@ class TakePhotoService : AccessibilityService() {
         val count = nodeInfo.childCount
         for (index in 0 until count){
             val child = nodeInfo.getChild(index)
+            getErrorPage(child)
             getNavHeader(child)
             Log.d("TakePhotoService", "Find->className:"+child.className+"+text"+child.text+"+viewIdResourceName:"+child.viewIdResourceName+"+contentDescription:"+child.contentDescription)
             if(child.contentDescription=="解答"||child.text=="解答"){//找到这两个字，证明webview的答案模块已经加载完毕
@@ -106,5 +107,14 @@ class TakePhotoService : AccessibilityService() {
             nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
 
+    }
+
+    private fun getErrorPage(nodeInfo: AccessibilityNodeInfo){
+        if(nodeInfo.contentDescription=="没有找到答案"||nodeInfo.text=="没有找到答案"||nodeInfo.contentDescription=="识别未成功，再试一次吧!"||nodeInfo.text=="识别未成功，再试一次吧!") {
+            val event= ShooterEvent()
+            event.event_todo=ShooterEvent.EventPhotoNext
+            EventBus.getDefault().post(event)
+            return
+        }
     }
 }

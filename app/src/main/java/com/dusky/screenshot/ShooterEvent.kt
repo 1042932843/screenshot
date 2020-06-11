@@ -6,5 +6,6 @@ open class ShooterEvent {
     companion object {
         var EventTakePhoto = 0x1043
         var EventServiceStartFind = 0x1044
+        var EventPhotoNext = 0x1045
     }
 }
