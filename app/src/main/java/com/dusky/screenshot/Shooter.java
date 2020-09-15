@@ -46,6 +46,7 @@ public class Shooter {
     private int mWidth;
 
 
+
     public Shooter(Context context, int reqCode, Intent data) {
         this.mRefContext = new SoftReference<>(context);
 
