@@ -4,6 +4,7 @@
     package="com.dusky.screenshot">
     
     <uses-permission android:name="com.baidu.homework.permission.PIC_SEARCH"/>
+    <uses-permission android:name="android.permission.MANAGE_MEDIA_PROJECTION"/>
 
     <application
         android:allowBackup="true"
@@ -39,7 +40,8 @@
             android:label="后台拍照服务"
             android:directBootAware="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            tools:targetApi="n">
+            tools:targetApi="n"
+            >
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>

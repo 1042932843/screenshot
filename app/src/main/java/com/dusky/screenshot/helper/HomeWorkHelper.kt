@@ -6,11 +6,14 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 
+
 object HomeWorkHelper {
     var PKG = "com.dusky.screenshot"
     var PicActivity="com.baidu.homework.activity.search.PicSearchActivity"
     var webView="android.webkit.WebView"
     var View="android.view.View"
+    var TextView="android.view.TextView"
+    var FrameLayout="android.widget.FrameLayout"
 
     /**
      * 打开作业帮搜题

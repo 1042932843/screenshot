@@ -103,11 +103,15 @@ class TransparentActivity : Activity() {
                     Log.d("onActivityResult","new Shooter")
                     val filePath=(Objects.requireNonNull<File>(
                         this.getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+
-                            current+"/"+ SystemClock.currentThreadTimeMillis()+ ".png")
+                            current+"/"+ "answer_"+current+ ".png")
                     val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()+"/"+ current
                     val file = File(dir)
                     if(!file.exists()){
                         file.mkdir()
+                    }
+                    val fileanswer = File(filePath)
+                    if(fileanswer.exists()){//存在就删tm的
+                        fileanswer.delete()
                     }
                     shooter.startScreenShot({
                         current += 1
@@ -129,16 +133,10 @@ class TransparentActivity : Activity() {
         if(current<dataList.size){
             val file=File(dataList[current])
             if(file.exists()){
+                val event=ShooterEvent()
+                event.event_todo=ShooterEvent.EventServiceStartFind
+                EventBus.getDefault().post(event)
                 HomeWorkHelper.openAPP(this,file.path)
-                val handler = Handler()
-                handler.postDelayed(
-                    {
-                        val event=ShooterEvent()
-                        event.event_todo=ShooterEvent.EventServiceStartFind
-                        EventBus.getDefault().post(event)
-                    },
-                    5000
-                )
             }
         }
     }
