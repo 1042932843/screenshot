@@ -25,8 +25,8 @@ object HomeWorkHelper {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             intent.putExtra("INPUT_IMG_FILE",path)
-            intent.putExtra("INPUT_SEARCH_CHANNEL","zzb_yz_dsl_dsl")
-            intent.putExtra("INPUT_USE_OCR",true)
+            //intent.putExtra("INPUT_SEARCH_CHANNEL","zzb_yz_dsl_dsl")
+            //intent.putExtra("INPUT_USE_OCR",true)
             context?.startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()

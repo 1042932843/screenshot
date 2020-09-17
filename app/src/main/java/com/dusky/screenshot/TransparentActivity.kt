@@ -27,7 +27,7 @@ class TransparentActivity : Activity() {
     private val REQUEST_MEDIA_PROJECTION = 0x2893
     var dataList=ArrayList<String>()
     var current=0
-
+    var event=ShooterEvent()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,12 +40,13 @@ class TransparentActivity : Activity() {
             EventBus.getDefault().register(this)
         }
 
+        current=intent.getIntExtra("current",0)
         val parentFile = File(getParentFile(), "Pics")
 
         if(parentFile.exists()){
             val children = parentFile.list()
           children.forEach {
-              var path=parentFile.path+"/"+it
+              val path=parentFile.path+"/"+it
               dataList.add(path)
           }
         }else{
@@ -66,6 +67,7 @@ class TransparentActivity : Activity() {
             ShooterEvent.EventTakePhoto->{
                 Log.d("TransparentActivity", "EventBus->state:requestScreenShot")
                 //screenShotByShell()
+                this.event=event
                 requestScreenShot()
             }
             ShooterEvent.EventPhotoNext->{
@@ -101,10 +103,8 @@ class TransparentActivity : Activity() {
                 if (resultCode == RESULT_OK && data != null) {
                     val shooter = Shooter(this, resultCode, data)
                     Log.d("onActivityResult","new Shooter")
-                    val filePath=(Objects.requireNonNull<File>(
-                        this.getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+
-                            current+"/"+ "answer_"+current+ ".png")
-                    val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()+"/"+ current
+                    val filePath=currentFilePath()
+                    val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()
                     val file = File(dir)
                     if(!file.exists()){
                         file.mkdir()
@@ -117,7 +117,7 @@ class TransparentActivity : Activity() {
                         current += 1
                         Log.d("onActivityResult","shot finish")
                         postMsg()
-                    },filePath)
+                    },filePath,event.y,event.yv)
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult","shot cancel , Don't you forget the permission?")
                 } else {
@@ -128,6 +128,9 @@ class TransparentActivity : Activity() {
         }
     }
 
+    fun currentFilePath():String{
+        return (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+ "answer_"+ current + ".png")
+    }
 
     fun postMsg(){//通知服务开始检测
         if(current<dataList.size){
@@ -175,7 +178,7 @@ class TransparentActivity : Activity() {
                 var hexString = Integer.toHexString(i)
                 if (hexString.length < 2) {
                     //如果是一位的话，补0
-                    hexString = "0" + hexString
+                    hexString = "0$hexString"
                 }
                 sb.append(hexString)
             }

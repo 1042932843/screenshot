@@ -44,6 +44,8 @@ public class Shooter {
     private OnFinishedListener mOnShotListener;
     private int mHeight;
     private int mWidth;
+    private int Y;//裁剪区域起点Y
+    private int Yv;//裁剪区域高
 
 
 
@@ -80,7 +82,9 @@ public class Shooter {
 
     }
 
-    public void startScreenShot(OnFinishedListener onShotListener, String loc_url) {
+    public void startScreenShot(OnFinishedListener onShotListener, String loc_url,int y,int yv) {
+        this.Y=y;
+        this.Yv=yv;
         mLocalUrl = loc_url;
         startScreenShot(onShotListener);
     }
@@ -128,7 +132,11 @@ public class Shooter {
             Bitmap bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height,
                     Bitmap.Config.ARGB_8888);//虽然这个色彩比较费内存但是 兼容性更好
             bitmap.copyPixelsFromBuffer(buffer);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+            int h2=Yv-Y;
+            if(h2>height-Y){
+                h2=height-Y;
+            }
+            bitmap = Bitmap.createBitmap(bitmap, 0, Y, width, h2);
             image.close();
             File fileImage = null;
             if (bitmap != null) {
@@ -204,4 +212,5 @@ public class Shooter {
     public interface OnFinishedListener {
         void onFinish();
     }
+
 }
