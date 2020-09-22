@@ -117,6 +117,9 @@ class TakePhotoService : AccessibilityService() {
         path.lineTo(100f,100f);//滑动到哪个点
     }
 
+    /**
+     * 滑动屏幕的操作（暂时用不上）
+     */
     @RequiresApi(Build.VERSION_CODES.N)
     fun doScorll(){
         this.dispatchGesture(
@@ -197,8 +200,6 @@ class TakePhotoService : AccessibilityService() {
             }
 
         }
-        Log.d("TakePhotoService", "FinishLoop->className:"+nodeInfo.className+"+"+nodeInfo.text+"+"+nodeInfo.viewIdResourceName)
-
     }
 
 

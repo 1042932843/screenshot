@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
-import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.Window
@@ -108,7 +107,7 @@ class TransparentActivity : Activity() {
                 if (resultCode == RESULT_OK && data != null) {
                     val shooter = Shooter(this, resultCode, data)
                     Log.d("onActivityResult","new Shooter")
-                    val filePath=currentFilePath()
+                    val filePath=currentAnswerFilePath()
                     val fileanswer = File(filePath)
                     if(fileanswer.exists()){//存在就删tm的
                         fileanswer.delete()
@@ -147,15 +146,26 @@ class TransparentActivity : Activity() {
         }
     }
 
-    fun currentFilePath():String{
-        val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()
+    fun currentAnswerFilePath():String{
+        val dir=this.getExternalFilesDir("answer")?.absoluteFile.toString()
         val file = File(dir)
         if(!file.exists()){
             file.mkdir()
         }
         val path=dataList[current]
         val currentFile=File(path)
-        return (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+ "answer_"+ currentFile.name + ".png")
+        return (Objects.requireNonNull<File>(getExternalFilesDir("answer")).absoluteFile.toString()+"/"+ "answer_"+ currentFile.name)
+    }
+
+    fun currentQuestionFilePath():String{
+        val dir=this.getExternalFilesDir("question")?.absoluteFile.toString()
+        val file = File(dir)
+        if(!file.exists()){
+            file.mkdir()
+        }
+        val path=dataList[current]
+        val currentFile=File(path)
+        return (Objects.requireNonNull<File>(getExternalFilesDir("question")).absoluteFile.toString()+"/"+ "question_"+ currentFile.name)
     }
 
     fun errorFilePath():String{

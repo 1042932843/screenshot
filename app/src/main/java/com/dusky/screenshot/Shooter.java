@@ -148,14 +148,6 @@ public class Shooter {
             File fileImage = null;
             if (bitmap != null) {
                 try {
-
-                    if (TextUtils.isEmpty(mLocalUrl)) {
-                        mLocalUrl = Objects.requireNonNull(getContext().getExternalFilesDir("screenshot")).getAbsoluteFile()
-                                +
-                                "/"
-                                +
-                                SystemClock.currentThreadTimeMillis() + ".png";
-                    }
                     fileImage = new File(mLocalUrl);
 
                     if (!fileImage.exists()) {
