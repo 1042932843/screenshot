@@ -122,6 +122,16 @@ public class Shooter {
             Image image = params[0];
             int width = image.getWidth();
             int height = image.getHeight();
+            int h2=Yv-Y;
+            if(h2>height-Y){
+                if (mOnShotListener != null) {
+                    Log.d("Shooter path:", mLocalUrl + "");
+                    mOnShotListener.onError();
+                    image.close();
+                    return null;
+                }
+            }
+
             final Image.Plane[] planes = image.getPlanes();
             final ByteBuffer buffer = planes[0].getBuffer();
             //每个像素的间距
@@ -132,10 +142,7 @@ public class Shooter {
             Bitmap bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height,
                     Bitmap.Config.ARGB_8888);//虽然这个色彩比较费内存但是 兼容性更好
             bitmap.copyPixelsFromBuffer(buffer);
-            int h2=Yv-Y;
-            if(h2>height-Y){
-                h2=height-Y;
-            }
+
             bitmap = Bitmap.createBitmap(bitmap, 0, Y, width, h2);
             image.close();
             File fileImage = null;
@@ -211,6 +218,7 @@ public class Shooter {
 
     public interface OnFinishedListener {
         void onFinish();
+        void onError();
     }
 
 }

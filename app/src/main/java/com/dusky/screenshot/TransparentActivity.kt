@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.Window
+import com.dusky.screenshot.helper.FileUtils
 import com.dusky.screenshot.helper.HomeWorkHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -26,9 +27,10 @@ import kotlin.collections.ArrayList
 class TransparentActivity : Activity() {
     private val REQUEST_MEDIA_PROJECTION = 0x2893
     var dataList=ArrayList<String>()
+    var errorList=ArrayList<String>()
     var current=0
     var event=ShooterEvent()
-
+    var errorFilePath=""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,8 @@ class TransparentActivity : Activity() {
         }
 
         current=intent.getIntExtra("current",0)
+        errorFilePath=errorFilePath()
+
         val parentFile = File(getParentFile(), "Pics")
 
         if(parentFile.exists()){
@@ -71,6 +75,7 @@ class TransparentActivity : Activity() {
                 requestScreenShot()
             }
             ShooterEvent.EventPhotoNext->{
+                error("无返回结果")
                 current += 1
                 postMsg()
             }
@@ -104,19 +109,23 @@ class TransparentActivity : Activity() {
                     val shooter = Shooter(this, resultCode, data)
                     Log.d("onActivityResult","new Shooter")
                     val filePath=currentFilePath()
-                    val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()
-                    val file = File(dir)
-                    if(!file.exists()){
-                        file.mkdir()
-                    }
                     val fileanswer = File(filePath)
                     if(fileanswer.exists()){//存在就删tm的
                         fileanswer.delete()
                     }
-                    shooter.startScreenShot({
-                        current += 1
-                        Log.d("onActivityResult","shot finish")
-                        postMsg()
+                    shooter.startScreenShot(object :Shooter.OnFinishedListener{
+                        override fun onFinish() {
+                            current += 1
+                            Log.d("onActivityResult","shot finish")
+                            postMsg()
+                        }
+
+                        override fun onError() {
+                            error("答案超出屏幕")
+                            current += 1
+                            postMsg()
+                        }
+
                     },filePath,event.y,event.yv)
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult","shot cancel , Don't you forget the permission?")
@@ -128,8 +137,34 @@ class TransparentActivity : Activity() {
         }
     }
 
+    fun error(type:String){
+        val path=dataList[current]
+        FileUtils.writeTxtToFile("$path（$type）",errorFilePath,"_log.txt")
+        val file=File(path)
+        if(file.exists()){
+            val save=FileUtils.copyFile(path,errorFilePath+"/"+file.name)
+            Log.d("save",save.toString())
+        }
+    }
+
     fun currentFilePath():String{
-        return (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+ "answer_"+ current + ".png")
+        val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()
+        val file = File(dir)
+        if(!file.exists()){
+            file.mkdir()
+        }
+        val path=dataList[current]
+        val currentFile=File(path)
+        return (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile.toString()+"/"+ "answer_"+ currentFile.name + ".png")
+    }
+
+    fun errorFilePath():String{
+        val dir=this.getExternalFilesDir("error")?.absoluteFile.toString()
+        val file = File(dir)
+        if(!file.exists()){
+            file.mkdir()
+        }
+        return dir
     }
 
     fun postMsg(){//通知服务开始检测
@@ -141,6 +176,8 @@ class TransparentActivity : Activity() {
                 EventBus.getDefault().post(event)
                 HomeWorkHelper.openAPP(this,file.path)
             }
+        }else{
+            errorList
         }
     }
 
@@ -149,6 +186,7 @@ class TransparentActivity : Activity() {
         return externalSaveDir ?: this.cacheDir
     }
 
+    //暂时用不上
     fun screenShotByShell() {
        val mLocalUrl =
            (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile
