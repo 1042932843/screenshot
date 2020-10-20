@@ -1,4 +1,4 @@
-package com.dusky.screenshot.helper;
+package com.dusky.screenshot.utils;
  
 import android.os.Environment;
 import android.util.Log;
@@ -17,6 +17,9 @@ import java.nio.channels.FileChannel;
 
 public class FileUtils {
 
+    public void dsds(String... strings){
+
+    }
     
     // 将字符串写入到文本文件中
     public static void writeTxtToFile(String strcontent, String filePath, String fileName) {

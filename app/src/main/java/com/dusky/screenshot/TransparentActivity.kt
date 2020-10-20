@@ -10,15 +10,16 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.Window
-import com.dusky.screenshot.helper.FileUtils
+import com.dusky.screenshot.helper.AccessibilityOperationFlowHelper.Companion.TYPE_ERROR_4
+import com.dusky.screenshot.helper.AccessibilityOperationFlowHelper.Companion.TYPE_MSG_0
+import com.dusky.screenshot.helper.AccessibilityOperationFlowHelper.Companion.TYPE_MSG_1
+import com.dusky.screenshot.utils.FileUtils
 import com.dusky.screenshot.helper.HomeWorkHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.io.IOException
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -48,7 +49,7 @@ class TransparentActivity : Activity() {
 
         if(parentFile.exists()){
             val children = parentFile.list()
-          children.forEach {
+          children?.forEach {
               val path=parentFile.path+"/"+it
               dataList.add(path)
           }
@@ -66,15 +67,15 @@ class TransparentActivity : Activity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(event: ShooterEvent) {
-        when(event.event_todo){
+        when(event.eventTodo){
             ShooterEvent.EventTakePhoto->{
                 Log.d("TransparentActivity", "EventBus->state:requestScreenShot")
                 //screenShotByShell()
                 this.event=event
                 requestScreenShot()
             }
-            ShooterEvent.EventPhotoNext->{
-                error("无返回结果")
+            ShooterEvent.EventErrorNext->{
+                error(event.eventMsg)
                 current += 1
                 postMsg()
             }
@@ -83,7 +84,7 @@ class TransparentActivity : Activity() {
 
 
 
-    fun requestScreenShot() {
+    private fun requestScreenShot() {
         startActivityForResult(
             createScreenCaptureIntent(),
             REQUEST_MEDIA_PROJECTION
@@ -107,20 +108,44 @@ class TransparentActivity : Activity() {
                 if (resultCode == RESULT_OK && data != null) {
                     val shooter = Shooter(this, resultCode, data)
                     Log.d("onActivityResult","new Shooter")
-                    val filePath=currentAnswerFilePath()
-                    val fileanswer = File(filePath)
-                    if(fileanswer.exists()){//存在就删tm的
-                        fileanswer.delete()
+                    var filePath=""
+                    when(event.eventMsg){
+                        TYPE_MSG_1->{
+                            filePath=currentAnswerFilePath()
+                            val fileanswer = File(filePath)
+                            if(fileanswer.exists()){//存在就删tm的
+                                fileanswer.delete()
+                            }
+                        }
+                        TYPE_MSG_0->{
+                            filePath=currentQuestionFilePath()
+                            val fileQuestion = File(filePath)
+                            if(fileQuestion.exists()){//存在就删tm的
+                                fileQuestion.delete()
+                            }
+                        }
                     }
+
                     shooter.startScreenShot(object :Shooter.OnFinishedListener{
                         override fun onFinish() {
-                            current += 1
-                            Log.d("onActivityResult","shot finish")
-                            postMsg()
+                            Log.d("onActivityResult","shot finish"+event.eventMsg)
+
+                            when(event.eventMsg){
+                                TYPE_MSG_1->{
+                                    current += 1
+                                    postMsg()
+                                }
+                                TYPE_MSG_0->{
+                                    val event=ShooterEvent()
+                                    event.eventTodo=ShooterEvent.EventServiceStartStep1
+                                    EventBus.getDefault().post(event)
+                                }
+                            }
+
                         }
 
                         override fun onError() {
-                            error("答案超出屏幕")
+                            error(TYPE_ERROR_4)
                             current += 1
                             postMsg()
                         }
@@ -141,12 +166,13 @@ class TransparentActivity : Activity() {
         FileUtils.writeTxtToFile("$path（$type）",errorFilePath,"_log.txt")
         val file=File(path)
         if(file.exists()){
-            val save=FileUtils.copyFile(path,errorFilePath+"/"+file.name)
+            val save=
+                FileUtils.copyFile(path,errorFilePath+"/"+file.name)
             Log.d("save",save.toString())
         }
     }
 
-    fun currentAnswerFilePath():String{
+    private fun currentAnswerFilePath():String{
         val dir=this.getExternalFilesDir("answer")?.absoluteFile.toString()
         val file = File(dir)
         if(!file.exists()){
@@ -157,7 +183,7 @@ class TransparentActivity : Activity() {
         return (Objects.requireNonNull<File>(getExternalFilesDir("answer")).absoluteFile.toString()+"/"+ "answer_"+ currentFile.name)
     }
 
-    fun currentQuestionFilePath():String{
+    private fun currentQuestionFilePath():String{
         val dir=this.getExternalFilesDir("question")?.absoluteFile.toString()
         val file = File(dir)
         if(!file.exists()){
@@ -168,7 +194,7 @@ class TransparentActivity : Activity() {
         return (Objects.requireNonNull<File>(getExternalFilesDir("question")).absoluteFile.toString()+"/"+ "question_"+ currentFile.name)
     }
 
-    fun errorFilePath():String{
+    private fun errorFilePath():String{
         val dir=this.getExternalFilesDir("error")?.absoluteFile.toString()
         val file = File(dir)
         if(!file.exists()){
@@ -177,26 +203,25 @@ class TransparentActivity : Activity() {
         return dir
     }
 
-    fun postMsg(){//通知服务开始检测
+    fun postMsg(){//通知服务从step0开始检测
         if(current<dataList.size){
             val file=File(dataList[current])
             if(file.exists()){
                 val event=ShooterEvent()
-                event.event_todo=ShooterEvent.EventServiceStartFind
+                event.eventTodo=ShooterEvent.EventServiceStartStep0
                 EventBus.getDefault().post(event)
                 HomeWorkHelper.openAPP(this,file.path)
             }
-        }else{
-            errorList
         }
     }
+
 
     private fun getParentFile(): File? {
         val externalSaveDir = this.externalCacheDir
         return externalSaveDir ?: this.cacheDir
     }
 
-    //暂时用不上
+    //需要root权限的拍照方式，这种更好其实
     fun screenShotByShell() {
        val mLocalUrl =
            (Objects.requireNonNull<File>(getExternalFilesDir("screenshot")).absoluteFile
@@ -211,33 +236,4 @@ class TransparentActivity : Activity() {
             e.printStackTrace()
         }
     }
-
-    fun encode(text: String): String {
-        try {
-            //获取md5加密对象
-            val instance: MessageDigest = MessageDigest.getInstance("MD5")
-            //对字符串加密，返回字节数组
-            val digest:ByteArray = instance.digest(text.toByteArray())
-            var sb : StringBuffer = StringBuffer()
-            for (b in digest) {
-                //获取低八位有效值
-                var i :Int = b.toInt() and 0xff
-                //将整数转化为16进制
-                var hexString = Integer.toHexString(i)
-                if (hexString.length < 2) {
-                    //如果是一位的话，补0
-                    hexString = "0$hexString"
-                }
-                sb.append(hexString)
-            }
-            return sb.toString()
-
-        } catch (e: NoSuchAlgorithmException) {
-            e.printStackTrace()
-        }
-
-        return ""
-    }
-
-
 }

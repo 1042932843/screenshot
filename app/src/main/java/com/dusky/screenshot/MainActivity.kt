@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        val dir=this.getExternalFilesDir("screenshot")?.absoluteFile.toString()
+        val dir=this.getExternalFilesDir("question")?.absoluteFile.toString()
         val file = File(dir)
         if(file.exists()){
             val anList=file.list()
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        state.text= "共"+size+"个文件，预计处理时长"+(size-current)*11/60+"分\n当前处理：第$current 个\n辅助功能服务开启状态：$st(未开启无法开始)\n对象包名：com.baidu.homework\n版本："+ HomeWorkHelper.getAppVersionName(this)
+        state.text= "共"+size+"个文件，预计处理时长"+(size-current)*18/60+"分\n当前处理：第$current 个\n辅助功能服务开启状态：$st(未开启无法开始)\n对象包名：com.baidu.homework\n版本："+ HomeWorkHelper.getAppVersionName(this)
 
     }
 

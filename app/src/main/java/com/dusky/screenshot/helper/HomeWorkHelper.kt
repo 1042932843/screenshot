@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 
 object HomeWorkHelper {
     var PKG = "com.dusky.screenshot"
+    var TargetPkg="com.baidu.homework"
     var PicActivity="com.baidu.homework.activity.search.PicSearchActivity"
     var webView="android.webkit.WebView"
     var View="android.view.View"
@@ -21,7 +22,7 @@ object HomeWorkHelper {
     fun openAPP(context: Context?, path: String?) {
         try {
             val intent= Intent(Intent.ACTION_VIEW)
-            intent.component= ComponentName("com.baidu.homework","com.baidu.homework.activity.homework.AutoAnswerActivity")
+            intent.component= ComponentName(TargetPkg,"com.baidu.homework.activity.homework.AutoAnswerActivity")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             intent.putExtra("INPUT_IMG_FILE",path)
