@@ -16,11 +16,6 @@ import java.nio.channels.FileChannel;
 
 
 public class FileUtils {
-
-    public void dsds(String... strings){
-
-    }
-    
     // 将字符串写入到文本文件中
     public static void writeTxtToFile(String strcontent, String filePath, String fileName) {
         //生成文件夹之后，再生成文件，不然会出错

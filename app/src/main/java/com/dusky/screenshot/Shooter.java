@@ -123,7 +123,7 @@ public class Shooter {
             int width = image.getWidth();
             int height = image.getHeight();
             int h2=Yv-Y;
-            if(h2>height-Y){
+            if(h2>height-Y||h2<=0){
                 if (mOnShotListener != null) {
                     Log.d("Shooter path:", mLocalUrl + "");
                     mOnShotListener.onError();
