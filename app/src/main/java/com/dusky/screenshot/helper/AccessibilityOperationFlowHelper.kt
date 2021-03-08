@@ -69,6 +69,9 @@ class AccessibilityOperationFlowHelper {
         }
     }
 
+    /**
+     *错误情况跳过
+     */
     fun errorNext(msg:String){
         val event= ShooterEvent()
         event.eventTodo= ShooterEvent.EventErrorNext
@@ -77,6 +80,9 @@ class AccessibilityOperationFlowHelper {
         currentEvent=event
     }
 
+    /**
+     * 正常跳过
+     */
     fun next(){
         val event= ShooterEvent()
         event.eventTodo= ShooterEvent.EventNext
