@@ -273,7 +273,7 @@ class TakePhotoService : AccessibilityService() {
                     "TakePhotoService",
                     AccessibilityOperationFlowHelper.TYPE_SYMBOL_1+"rect->:(" + rect0.left + "," + rect0.right + "," + rect0.top + "," + rect0.bottom + ")"
                 )
-                yvStep2=rect0.top
+                yvStep2=rect0.top-400
                 if(yStep2!=0&&yvStep2!=0){
                     operationFlowHelper!!.shoot(yStep2,yvStep2,AccessibilityOperationFlowHelper.TYPE_MSG_1)
                     currentClassName=""//流程完毕，重置

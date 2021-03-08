@@ -10,7 +10,7 @@ import android.content.pm.PackageManager
 object HomeWorkHelper {
     var PKG = "com.dusky.screenshot"
     var TargetPkg="com.baidu.homework"
-    var PicActivity="com.baidu.homework.activity.search.PicSearchActivity"
+    var PicActivity="com.baidu.homework.activity.search.singlequestion.PicSearchActivity"
     var webView="android.webkit.WebView"
     var View="android.view.View"
     var TextView="android.view.TextView"
